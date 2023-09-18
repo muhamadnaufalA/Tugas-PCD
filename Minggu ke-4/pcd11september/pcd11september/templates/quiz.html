@@ -1,0 +1,58 @@
+{% extends "layout.html" %} 
+{% block body %}
+<div class="container col-6 result">
+    <div class="container" >
+        <div class="row">
+            {% for piece_path in puzzle_piece_paths %}
+                <div class="m-1">
+                    <img src="{{ url_for('static', filename=piece_path) }}" alt="Puzzle Piece">
+                </div>
+            {% endfor %}
+        </div>
+        <div>
+            Image size: <span id="imageSize"></span>
+        </div>
+    </div>
+    <table style="background-color: white;">
+        <tr>
+            <th>Pixel</th>
+            <th>R</th>
+            <th>G</th>
+            <th>B</th>
+        </tr>
+        {% for i in range(img_dim[0] * img_dim[1]) %}
+        <tr>
+            <td>{{ i + 1 }}</td>
+            <td>{{ img_rgb_val[i][0] }}</td>
+            <td>{{ img_rgb_val[i][1] }}</td>
+            <td>{{ img_rgb_val[i][2] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lokasi folder gambar
+        var folderPath = 'static/img/';
+        var imageName = 'img_now.jpg'; // Nama file gambar yang ingin Anda cek ukurannya
+
+        // Buat objek gambar untuk memuat gambar
+        var img = new Image();
+        img.src = folderPath + imageName;
+
+        img.onload = function () {
+            // Setel teks ukuran gambar
+            var imageSizeText = img.width + ' x ' + img.height + ' pixels';
+            document.getElementById('imageSize').textContent = imageSizeText;
+        };
+
+        img.onerror = function () {
+            console.log('Gagal memuat gambar: ' + imageName);
+        };
+    });
+</script>
+
+
+{% endblock %}

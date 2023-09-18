@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, make_response
 from datetime import datetime
 from functools import wraps, update_wrapper
 from shutil import copyfile
+import random
 
 app = Flask(__name__)
 
@@ -35,7 +36,6 @@ def index():
 @nocache
 def about():
     return render_template('about.html')
-
 
 @app.after_request
 def add_header(r):
@@ -194,6 +194,52 @@ def thresholding():
     upper_thres = int(request.form['upper_thres'])
     image_processing.threshold(lower_thres, upper_thres)
     return render_template("uploaded.html", file_path="img/img_now.jpg")
+
+@app.route("/puzzle", methods=["POST"])
+@nocache
+def puzzle():
+    size = int(request.form["input_puzzle"])
+    image_dimensions = image_processing.get_image_dimensions("static/img/img_now.jpg")
+    rgb_values = image_processing.get_image_rgb("static/img/img_now.jpg")
+    puzzle_pieces = image_processing.create_puzzle(size)
+
+    # Get the file paths of the puzzle pieces
+    puzzle_piece_paths = [
+        f"potongan/puzzle_piece_{i}_{j}.jpg" for i in range(size) for j in range(size)
+    ]
+
+    return render_template("quiz.html", puzzle_piece_paths=puzzle_piece_paths,img_dim=image_dimensions, img_rgb_val=rgb_values)
+
+@app.route("/puzzle_random", methods=["POST"])
+@nocache
+def puzzle_random():
+    size = int(request.form["input_puzzle"])
+    image_dimensions = image_processing.get_image_dimensions("static/img/img_now.jpg")
+    rgb_values = image_processing.get_image_rgb("static/img/img_now.jpg")
+    puzzle_pieces = image_processing.create_puzzle(size)
+
+    # Get the file paths of the puzzle pieces
+    puzzle_piece_paths = [
+        f"potongan/puzzle_piece_{i}_{j}.jpg" for i in range(size) for j in range(size)
+    ]
+    random.shuffle(puzzle_piece_paths)
+    return render_template("quiz.html", puzzle_piece_paths=puzzle_piece_paths,img_dim=image_dimensions, img_rgb_val=rgb_values)
+
+@app.route("/table", methods=["POST"])
+@nocache
+def table():
+    target = os.path.join(APP_ROOT, "static/img")
+    image_dimensions = image_processing.get_image_dimensions("static/img/img_now.jpg")
+    rgb_values = image_processing.get_image_rgb("static/img/img_now.jpg")
+    if not os.path.isdir(target):
+        if os.name == 'nt':
+            os.makedirs(target)
+        else:
+            os.mkdir(target)
+    for file in request.files.getlist("file"):
+        file.save("static/img/img_now.jpg")
+    copyfile("static/img/img_now.jpg", "static/img/img_normal.jpg")
+    return render_template("quiz.html", file_path="img/img_now.jpg", img_dim=image_dimensions, img_rgb_val=rgb_values)
 
 
 if __name__ == '__main__':

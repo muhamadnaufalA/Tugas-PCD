@@ -386,5 +386,53 @@ def threshold(lower_thres, upper_thres):
     new_img = Image.fromarray(img_arr_copy)
     new_img.save("static/img/img_now.jpg")
 
+def create_puzzle(size):
+    # Load the image
+    img_path = "static/img/img_now.jpg"
+    img = Image.open(img_path)
+
+    # Get image dimensions
+    width, height = img.size
+
+    # Calculate dimensions for each puzzle piece
+    piece_width = width // size
+    piece_height = height // size
+
+    # Initialize an array to store the puzzle pieces
+    puzzle_pieces = []
+
+    for i in range(size):
+        for j in range(size):
+            # Crop a piece from the image
+            left = j * piece_width
+            upper = i * piece_height
+            right = left + piece_width
+            lower = upper + piece_height
+
+            puzzle_piece = img.crop((left, upper, right, lower))
+            puzzle_pieces.append(puzzle_piece)
+
+            # Save the puzzle piece
+            puzzle_piece.save(f"static/potongan/puzzle_piece_{i}_{j}.jpg")
+
+    return puzzle_piece
+
+def get_image_rgb(image_path):
+    try:
+        with Image.open(image_path) as img:
+            rgb_values = list(img.getdata())
+            return rgb_values
+    except Exception as e:
+        return None
+    
+def get_image_dimensions(image_path):
+    try:
+        with Image.open(image_path) as img:
+            width, height = img.size
+            return width, height
+    except Exception as e:
+        return None
+
+
 
 
